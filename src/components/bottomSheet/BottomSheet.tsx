@@ -14,8 +14,8 @@ import Animated, {
   Extrapolation,
   interpolate,
   ReduceMotion,
-  runOnJS,
-  runOnUI,
+  // runOnJS,
+  // runOnUI,
   useAnimatedReaction,
   useDerivedValue,
   useReducedMotion,
@@ -23,6 +23,7 @@ import Animated, {
   type WithSpringConfig,
   type WithTimingConfig,
 } from 'react-native-reanimated';
+import {scheduleOnRN,scheduleOnUI} from 'react-native-worklets'
 import {
   ANIMATION_SOURCE,
   ANIMATION_STATUS,
@@ -538,7 +539,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         const { nextIndex, nextPosition } = animatedAnimationState.get();
 
         if (__DEV__) {
-          runOnJS(print)({
+          scheduleOnRN(()=>print({
             component: 'BottomSheet',
             method: 'animateToPositionCompleted',
             params: {
@@ -546,7 +547,17 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
               nextIndex,
               nextPosition,
             },
-          });
+          }));
+
+          // runOnJS(print)({
+          //   component: 'BottomSheet',
+          //   method: 'animateToPositionCompleted',
+          //   params: {
+          //     currentIndex: animatedCurrentIndex.value,
+          //     nextIndex,
+          //     nextPosition,
+          //   },
+          // });
         }
 
         if (nextIndex === undefined || nextPosition === undefined) {
@@ -555,11 +566,13 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
 
         // callbacks
         if (nextIndex !== animatedCurrentIndex.get()) {
-          runOnJS(handleOnChange)(nextIndex, nextPosition);
+          scheduleOnRN(()=>handleOnChange(nextIndex, nextPosition));
+          // runOnJS(handleOnChange)(nextIndex, nextPosition);
         }
 
         if (nextIndex === -1) {
-          runOnJS(handleOnClose)();
+          scheduleOnRN(()=>handleOnClose());
+          // runOnJS(handleOnClose)();
         }
 
         animatedCurrentIndex.set(nextIndex);
@@ -593,7 +606,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
       ) {
         'worklet';
         if (__DEV__) {
-          runOnJS(print)({
+          scheduleOnRN(()=>print({
             component: 'BottomSheet',
             method: 'animateToPosition',
             params: {
@@ -601,7 +614,16 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
               nextPosition: position,
               source,
             },
-          });
+          }))
+          // runOnJS(print)({
+          //   component: 'BottomSheet',
+          //   method: 'animateToPosition',
+          //   params: {
+          //     currentPosition: animatedPosition.value,
+          //     nextPosition: position,
+          //     source,
+          //   },
+          // });
         }
 
         if (position === undefined) {
@@ -679,7 +701,8 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         /**
          * fire `onAnimate` callback
          */
-        runOnJS(handleOnAnimate)(index, position);
+        scheduleOnRN(()=>handleOnAnimate(index, position));
+        // runOnJS(handleOnAnimate)(index, position);
 
         /**
          * start animation
@@ -735,14 +758,22 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         }
 
         if (__DEV__) {
-          runOnJS(print)({
+          scheduleOnRN(()=>print({
             component: 'BottomSheet',
             method: 'setToPosition',
             params: {
               currentPosition: animatedPosition.value,
               targetPosition,
             },
-          });
+          }))
+          // runOnJS(print)({
+          //   component: 'BottomSheet',
+          //   method: 'setToPosition',
+          //   params: {
+          //     currentPosition: animatedPosition.value,
+          //     targetPosition,
+          //   },
+          // });
         }
 
         /**
@@ -1128,12 +1159,21 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
        */
       isInTemporaryPosition.value = false;
 
-      runOnUI(animateToPosition)(
-        targetPosition,
-        ANIMATION_SOURCE.USER,
-        0,
-        animationConfigs
-      );
+      scheduleOnUI(() => {
+        animateToPosition(
+          targetPosition,
+          ANIMATION_SOURCE.USER,
+          0,
+          animationConfigs
+        );
+      })
+
+      // runOnUI(animateToPosition)(
+      //   targetPosition,
+      //   ANIMATION_SOURCE.USER,
+      //   0,
+      //   animationConfigs
+      // );
     });
     const handleSnapToPosition = useCallback(
       function handleSnapToPosition(
@@ -1177,12 +1217,20 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
          */
         isInTemporaryPosition.value = true;
 
-        runOnUI(animateToPosition)(
-          targetPosition,
-          ANIMATION_SOURCE.USER,
-          0,
-          animationConfigs
-        );
+        scheduleOnUI(() => {
+          animateToPosition(
+            targetPosition,
+            ANIMATION_SOURCE.USER,
+            0,
+            animationConfigs
+          );
+        })
+        // runOnUI(animateToPosition)(
+        //   targetPosition,
+        //   ANIMATION_SOURCE.USER,
+        //   0,
+        //   animationConfigs
+        // );
       },
       [
         animateToPosition,
@@ -1230,13 +1278,20 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
          * reset temporary position variable.
          */
         isInTemporaryPosition.value = false;
-
-        runOnUI(animateToPosition)(
-          targetPosition,
-          ANIMATION_SOURCE.USER,
-          0,
-          animationConfigs
-        );
+        scheduleOnUI(() => {
+          animateToPosition(
+            targetPosition,
+            ANIMATION_SOURCE.USER,
+            0,
+            animationConfigs
+          );
+        })
+        // runOnUI(animateToPosition)(
+        //   targetPosition,
+        //   ANIMATION_SOURCE.USER,
+        //   0,
+        //   animationConfigs
+        // );
       },
       [
         animateToPosition,
@@ -1290,13 +1345,20 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
             isForcedClosing: true,
           };
         });
-
-        runOnUI(animateToPosition)(
-          targetPosition,
-          ANIMATION_SOURCE.USER,
-          0,
-          animationConfigs
-        );
+        scheduleOnUI(() => {
+          animateToPosition(
+            targetPosition,
+            ANIMATION_SOURCE.USER,
+            0,
+            animationConfigs
+          );
+        })
+        // runOnUI(animateToPosition)(
+        //   targetPosition,
+        //   ANIMATION_SOURCE.USER,
+        //   0,
+        //   animationConfigs
+        // );
       },
       [
         animateToPosition,
@@ -1345,13 +1407,20 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
          * reset temporary position boolean.
          */
         isInTemporaryPosition.value = false;
-
-        runOnUI(animateToPosition)(
-          targetPosition,
-          ANIMATION_SOURCE.USER,
-          0,
-          animationConfigs
-        );
+        scheduleOnUI(() => {
+          animateToPosition(
+            targetPosition,
+            ANIMATION_SOURCE.USER,
+            0,
+            animationConfigs
+          );
+        })
+        // runOnUI(animateToPosition)(
+        //   targetPosition,
+        //   ANIMATION_SOURCE.USER,
+        //   0,
+        //   animationConfigs
+        // );
       },
       [
         animateToPosition,
@@ -1400,13 +1469,21 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
          * reset temporary position boolean.
          */
         isInTemporaryPosition.value = false;
+        scheduleOnUI(() => {
+          animateToPosition(
+            targetPosition,
+            ANIMATION_SOURCE.USER,
+            0,
+            animationConfigs
+          );
+        })  
 
-        runOnUI(animateToPosition)(
-          targetPosition,
-          ANIMATION_SOURCE.USER,
-          0,
-          animationConfigs
-        );
+        // runOnUI(animateToPosition)(
+        //   targetPosition,
+        //   ANIMATION_SOURCE.USER,
+        //   0,
+        //   animationConfigs
+        // );
       },
       [
         animateToPosition,
@@ -1589,14 +1666,25 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         }
 
         if (__DEV__) {
-          runOnJS(print)({
-            component: 'BottomSheet',
-            method: 'useAnimatedReaction::OnSnapPointChange',
-            category: 'effect',
-            params: {
-              result,
-            },
-          });
+          scheduleOnRN(() =>
+            print({
+              component: 'BottomSheet',
+              method: 'useAnimatedReaction::OnSnapPointChange',
+              category: 'effect',
+              params: {
+                result,
+              },
+            })
+          );
+
+          // runOnJS(print)({
+          //   component: 'BottomSheet',
+          //   method: 'useAnimatedReaction::OnSnapPointChange',
+          //   category: 'effect',
+          //   params: {
+          //     result,
+          //   },
+          // });
         }
 
         evaluatePosition(ANIMATION_SOURCE.SNAP_POINT_CHANGE);
@@ -1657,17 +1745,31 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
               : Math.abs(height - containerOffset.bottom);
 
         if (__DEV__) {
-          runOnJS(print)({
-            component: 'BottomSheet',
-            method: 'useAnimatedReaction::OnKeyboardStateChange',
-            category: 'effect',
-            params: {
-              status,
-              height,
-              heightWithinContainer,
-              containerOffset,
-            },
-          });
+          scheduleOnRN(() =>
+            print({
+              component: 'BottomSheet',
+              method: 'useAnimatedReaction::OnKeyboardStateChange',
+              category: 'effect',
+              params: {
+                status,
+                height,
+                heightWithinContainer,
+                containerOffset,
+              },
+            })
+          );
+
+          // runOnJS(print)({
+          //   component: 'BottomSheet',
+          //   method: 'useAnimatedReaction::OnKeyboardStateChange',
+          //   category: 'effect',
+          //   params: {
+          //     status,
+          //     height,
+          //     heightWithinContainer,
+          //     containerOffset,
+          //   },
+          // });
         }
 
         /**
