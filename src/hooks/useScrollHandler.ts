@@ -1,5 +1,5 @@
 import {
-  runOnJS,
+  // runOnJS,
   useAnimatedRef,
   useAnimatedScrollHandler,
   useSharedValue,
@@ -7,6 +7,7 @@ import {
 import type { Scrollable, ScrollableEvent } from '../types';
 import { workletNoop as noop } from '../utilities';
 import { useScrollEventsHandlersDefault } from './useScrollEventsHandlersDefault';
+import { scheduleOnRN } from 'react-native-worklets';
 
 export const useScrollHandler = (
   useScrollEventsHandlers = useScrollEventsHandlersDefault,
@@ -36,21 +37,24 @@ export const useScrollHandler = (
         handleOnScroll(event, context);
 
         if (onScroll) {
-          runOnJS(onScroll)({ nativeEvent: event });
+          // runOnJS(onScroll)({ nativeEvent: event });
+          scheduleOnRN(()=>onScroll({ nativeEvent: event }))
         }
       },
       onBeginDrag: (event, context) => {
         handleOnBeginDrag(event, context);
 
         if (onScrollBeginDrag) {
-          runOnJS(onScrollBeginDrag)({ nativeEvent: event });
+          // runOnJS(onScrollBeginDrag)({ nativeEvent: event });
+          scheduleOnRN(()=>onScrollBeginDrag({ nativeEvent: event }))
         }
       },
       onEndDrag: (event, context) => {
         handleOnEndDrag(event, context);
 
         if (onScrollEndDrag) {
-          runOnJS(onScrollEndDrag)({ nativeEvent: event });
+          // runOnJS(onScrollEndDrag)({ nativeEvent: event });
+          scheduleOnRN(()=>onScrollEndDrag({ nativeEvent: event }))
         }
       },
       onMomentumBegin: handleOnMomentumBegin,
