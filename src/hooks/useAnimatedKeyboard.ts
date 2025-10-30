@@ -7,12 +7,14 @@ import {
   Platform,
 } from 'react-native';
 import {
-  runOnUI,
+  // runOnUI,
   useAnimatedReaction,
   useSharedValue,
 } from 'react-native-reanimated';
 import { KEYBOARD_STATUS, SCREEN_HEIGHT } from '../constants';
 import type { KeyboardState } from '../types';
+import { scheduleOnUI } from 'react-native-worklets';
+
 
 const KEYBOARD_EVENT_MAPPER = {
   KEYBOARD_SHOW: Platform.select({
@@ -107,23 +109,42 @@ export const useAnimatedKeyboard = () => {
   //#region effects
   useEffect(() => {
     const handleOnKeyboardShow = (event: KeyboardEvent) => {
-      runOnUI(handleKeyboardEvent)(
-        KEYBOARD_STATUS.SHOWN,
-        event.endCoordinates.height,
-        event.duration,
-        event.easing,
-        SCREEN_HEIGHT -
-          event.endCoordinates.height -
-          event.endCoordinates.screenY
-      );
+      scheduleOnUI(() => {
+        handleKeyboardEvent(
+          KEYBOARD_STATUS.SHOWN,
+          event.endCoordinates.height,
+          event.duration,
+          event.easing,
+          SCREEN_HEIGHT -
+            event.endCoordinates.height -
+            event.endCoordinates.screenY
+        );
+      });
+      // runOnUI(handleKeyboardEvent)(
+      //   KEYBOARD_STATUS.SHOWN,
+      //   event.endCoordinates.height,
+      //   event.duration,
+      //   event.easing,
+      //   SCREEN_HEIGHT -
+      //     event.endCoordinates.height -
+      //     event.endCoordinates.screenY
+      // );
     };
     const handleOnKeyboardHide = (event: KeyboardEvent) => {
-      runOnUI(handleKeyboardEvent)(
-        KEYBOARD_STATUS.HIDDEN,
-        event.endCoordinates.height,
-        event.duration,
-        event.easing
-      );
+      scheduleOnUI(() => {
+        handleKeyboardEvent(
+          KEYBOARD_STATUS.HIDDEN,
+          event.endCoordinates.height,
+          event.duration,
+          event.easing
+        );
+      })
+      // runOnUI(handleKeyboardEvent)(
+      //   KEYBOARD_STATUS.HIDDEN,
+      //   event.endCoordinates.height,
+      //   event.duration,
+      //   event.easing
+      // );
     };
 
     const showSubscription = Keyboard.addListener(
