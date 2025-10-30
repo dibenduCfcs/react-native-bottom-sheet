@@ -12,7 +12,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useAnimatedReaction,
-  runOnJS,
+  // runOnJS,
   Extrapolation,
 } from 'react-native-reanimated';
 import { useBottomSheet } from '../../hooks';
@@ -29,6 +29,7 @@ import {
 } from './constants';
 import { styles } from './styles';
 import type { BottomSheetDefaultBackdropProps } from './types';
+import { scheduleOnRN } from 'react-native-worklets';
 
 const BottomSheetBackdropComponent = ({
   animatedIndex,
@@ -89,7 +90,8 @@ const BottomSheetBackdropComponent = ({
   //#region tap gesture
   const tapHandler = useMemo(() => {
     const gesture = Gesture.Tap().onEnd(() => {
-      runOnJS(handleOnPress)();
+      scheduleOnRN(()=>handleOnPress())
+      // runOnJS(handleOnPress)();
     });
     return gesture;
   }, [handleOnPress]);
@@ -120,7 +122,8 @@ const BottomSheetBackdropComponent = ({
       if (shouldDisableTouchability === previous) {
         return;
       }
-      runOnJS(handleContainerTouchability)(shouldDisableTouchability);
+      scheduleOnRN(()=>handleContainerTouchability(shouldDisableTouchability))
+      // runOnJS(handleContainerTouchability)(shouldDisableTouchability);
     },
     [disappearsOnIndex]
   );
