@@ -134,11 +134,14 @@ function BottomSheetHandleContainerComponent({
     },
     [animatedLayoutState]
   );
+
+  // ✅ Modified version (patch)
   const handleBoundingClientRect = useCallback(
-    ({ height }: BoundingClientRect) => {
+    (params: BoundingClientRect) => {
+      if (!params?.height) return;
       animatedLayoutState.modify(state => {
         'worklet';
-        state.handleHeight = height;
+        state.handleHeight = params.height;
         return state;
       });
 
@@ -148,7 +151,7 @@ function BottomSheetHandleContainerComponent({
           method: 'handleBoundingClientRect',
           category: 'layout',
           params: {
-            height,
+            height: params.height,
           },
         });
       }
