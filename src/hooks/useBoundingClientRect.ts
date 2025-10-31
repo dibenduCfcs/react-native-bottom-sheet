@@ -64,9 +64,9 @@ export function useBoundingClientRect(
     }
 
     // @ts-ignore once it `unstable_getBoundingClientRect` gets stable 🤞.
-    if (typeof ref.current.unstable_getBoundingClientRect === 'function') {
+    if (typeof ref.current.getBoundingClientRect === 'function') {
       // @ts-ignore once it `unstable_getBoundingClientRect` gets stable.
-      const layout = ref.current.getBoundingClientRect();
+      const layout = ref.current?.unstable_getBoundingClientRect?.();
       handler(layout);
     }
   });
